@@ -1,0 +1,73 @@
+spring:
+  profiles:
+    active: prod
+  
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      connection-test-query: "SELECT 1"
+  
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD}
+    ssl: ${REDIS_SSL:false}
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+logging:
+  level:
+    root: WARN
+    org.killbill: INFO
+    org.springframework: WARN
+    org.springframework.security: INFO
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /var/log/tenant-service/application.log
+    max-size: 100MB
+    max-history: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Production security settings
+killbill:
+  tenant:
+    service:
+      request:
+        timeout-seconds: 30
+      cache:
+        ttl-minutes: 120
+        max-entries: 50000
+    security:
+      enable-api-key-auth: true
+      enable-oauth2: false
+      require-https: true
+      api-key-rotation-enabled: true
+      api-key-expiry-days: 365
